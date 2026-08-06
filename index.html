@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>toys</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: #07090d; color: #9aa4b2;
+    font: 14px/1.6 "SF Mono", ui-monospace, Menlo, Consolas, monospace;
+    min-height: 100vh; display: flex; align-items: center; justify-content: center;
+    padding: 6vh 20px;
+  }
+  main { max-width: 680px; width: 100%; }
+  h1 { color: #e6edf3; font-size: 20px; letter-spacing: 8px; font-weight: 600; }
+  .sub { color: #565d66; margin: 4px 0 34px; font-style: italic; }
+  .toy {
+    display: block; text-decoration: none; color: inherit;
+    border: 1px solid #21262e; background: #0b0e14;
+    padding: 18px 22px; margin-bottom: 14px;
+    transition: border-color 0.15s;
+  }
+  .toy:hover { border-color: #8b949e; }
+  .toy h2 { font-size: 14px; letter-spacing: 3px; margin-bottom: 6px; }
+  .toy p { color: #8b949e; font-size: 13px; }
+  .toy .go { color: #565d66; font-size: 12px; margin-top: 8px; }
+  .toy:hover .go { color: #c8d0da; }
+  footer { color: #3a4048; font-size: 12px; margin-top: 30px; text-align: center; }
+</style>
+</head>
+<body>
+<main>
+  <h1>T O Y S</h1>
+  <div class="sub">small worlds, left running. none of them need you.</div>
+  <div id="cards"></div>
+  <footer>descriptions live inside each toy — this page just asks them</footer>
+</main>
+<script>
+// each toy OWNS its manifest: /​<toy>-play/toy.json ships with its build.
+// This page fetches them at runtime — deploying a toy updates the hub.
+const TOYS = [
+  { id: "derelict", hue: "#8a6fd0" },
+  { id: "dirtball", hue: "#ce8a40" },
+  { id: "seep",     hue: "#4aa8c0" },
+  { id: "firehouse-rl", hue: "#e05a3a" },
+];
+const FALLBACK = {
+  "derelict": ["DERELICT", "A ship that died a long time ago, and the things that refuse to agree about what that means."],
+  "dirtball": ["DIRTBALL", "A contested planet under constant bombardment. The only failure state is boredom."],
+  "seep": ["SEEP", "A wall in cross-section, slowly coming apart. Breakthrough is not an ending."],
+  "firehouse-rl": ["FIREHOUSE RL", "A firefighting roguelike: a building that burns faster than orders travel."],
+};
+const onPages = location.hostname.endsWith("github.io");
+const playUrl = (id) => {
+  if (onPages) return `/${id}-play/`;
+  if (id === "derelict") return "/derelict/"; // prod hosts derelict natively
+  return `https://jlb0170.github.io/${id}-play/`;
+};
+const manifestUrl = (id) => {
+  if (onPages) return `/${id}-play/toy.json`;
+  if (id === "derelict") return "/derelict/toy.json";
+  return `https://jlb0170.github.io/${id}-play/toy.json`; // Pages sends CORS *
+};
+const cards = document.getElementById("cards");
+for (const t of TOYS) {
+  const a = document.createElement("a");
+  a.className = "toy";
+  a.href = playUrl(t.id);
+  const [fn, fb] = FALLBACK[t.id];
+  a.innerHTML = `<h2 style="color:${t.hue}">${fn}</h2><p>${fb}</p><div class="go">&gt; enter</div>`;
+  cards.appendChild(a);
+  fetch(manifestUrl(t.id)).then(r => r.ok ? r.json() : null).then(m => {
+    if (!m) return;
+    a.querySelector("h2").textContent = m.name;
+    a.querySelector("p").textContent = m.blurb;
+  }).catch(() => {});
+}
+</script>
+</body>
+</html>
