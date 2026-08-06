@@ -15,6 +15,8 @@
   main { max-width: 680px; width: 100%; }
   h1 { color: #e6edf3; font-size: 20px; letter-spacing: 8px; font-weight: 600; }
   .sub { color: #565d66; margin: 4px 0 34px; font-style: italic; }
+  h3 { color: #565d66; font-size: 11px; letter-spacing: 4px; margin: 26px 0 10px; font-weight: 600; }
+  .credit { color: #565d66; font-size: 11px; margin-top: 6px; }
   .toy {
     display: block; text-decoration: none; color: inherit;
     border: 1px solid #21262e; background: #0b0e14;
@@ -33,17 +35,30 @@
 <main>
   <h1>T O Y S</h1>
   <div class="sub">small worlds, left running. none of them need you.</div>
-  <div id="cards"></div>
+  <h3>IDLERS</h3>
+  <div id="cards-idlers"></div>
+  <h3>GAME DEMOS</h3>
+  <div id="cards-demos"></div>
   <footer>descriptions live inside each toy — this page just asks them</footer>
 </main>
 <script>
 // each toy OWNS its manifest: /​<toy>-play/toy.json ships with its build.
 // This page fetches them at runtime — deploying a toy updates the hub.
 const TOYS = [
-  { id: "derelict", hue: "#8a6fd0" },
-  { id: "dirtball", hue: "#ce8a40" },
-  { id: "seep",     hue: "#4aa8c0" },
-  { id: "firehouse-rl", hue: "#e05a3a" },
+  { id: "derelict", hue: "#8a6fd0", section: "cards-idlers" },
+  { id: "dirtball", hue: "#ce8a40", section: "cards-idlers" },
+  { id: "seep",     hue: "#4aa8c0", section: "cards-idlers" },
+  { id: "firehouse-rl", hue: "#e05a3a", section: "cards-demos" },
+];
+// guests: not part of the toy.json federation — a static card, credited
+const GUESTS = [
+  {
+    name: "ROGUE ARENA", hue: "#c8b45a", section: "cards-demos",
+    blurb: "A roguelike arena. No play link yet — the code is the exhibit.",
+    href: "https://github.com/gideon-s/rogue-arena",
+    go: "> source",
+    credit: "written by gideon-s · collaborated on",
+  },
 ];
 const FALLBACK = {
   "derelict": ["DERELICT", "A ship that died a long time ago, and the things that refuse to agree about what that means."],
@@ -62,19 +77,25 @@ const manifestUrl = (id) => {
   if (id === "derelict") return "/derelict/toy.json";
   return `https://jlb0170.github.io/${id}-play/toy.json`; // Pages sends CORS *
 };
-const cards = document.getElementById("cards");
 for (const t of TOYS) {
   const a = document.createElement("a");
   a.className = "toy";
   a.href = playUrl(t.id);
   const [fn, fb] = FALLBACK[t.id];
   a.innerHTML = `<h2 style="color:${t.hue}">${fn}</h2><p>${fb}</p><div class="go">&gt; enter</div>`;
-  cards.appendChild(a);
+  document.getElementById(t.section).appendChild(a);
   fetch(manifestUrl(t.id)).then(r => r.ok ? r.json() : null).then(m => {
     if (!m) return;
     a.querySelector("h2").textContent = m.name;
     a.querySelector("p").textContent = m.blurb;
   }).catch(() => {});
+}
+for (const g of GUESTS) {
+  const a = document.createElement("a");
+  a.className = "toy";
+  a.href = g.href;
+  a.innerHTML = `<h2 style="color:${g.hue}">${g.name}</h2><p>${g.blurb}</p><div class="credit">${g.credit}</div><div class="go">${g.go.replace(">", "&gt;")}</div>`;
+  document.getElementById(g.section).appendChild(a);
 }
 </script>
 </body>
