@@ -4,8 +4,8 @@ pages:
 
 deploy:
 	scp index.html prod:~/hub-index.html
-	ssh prod 'sudo cp ~/hub-index.html /var/www/html/index.html'
-	@echo "live: http://54.176.99.150/"
+	ssh prod 'sudo cp ~/hub-index.html /site/toys/index.html'
+	@echo "live: http://54.176.99.150/toys/"
 
 makes:
 	egrep '^\w' Makefile
