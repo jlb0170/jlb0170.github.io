@@ -53,10 +53,10 @@ const TOYS = [
 // guests: not part of the toy.json federation — a static card, credited
 const GUESTS = [
   {
-    name: "ROGUE ARENA", hue: "#c8b45a", section: "cards-demos",
-    blurb: "A roguelike arena. No play link yet — the code is the exhibit.",
-    href: "https://github.com/gideon-s/rogue-arena",
-    go: "> source",
+    id: "rogue-arena", name: "ROGUE ARENA", hue: "#c8b45a", section: "cards-demos",
+    blurb: "A ROT.js roguelike grown from the classic RogueBasin tutorial and heavily mutated.",
+    href: "https://jlb0170.github.io/rogue-arena/",
+    go: "> enter",
     credit: "written by gideon-s · collaborated on",
   },
 ];
@@ -96,6 +96,14 @@ for (const g of GUESTS) {
   a.href = g.href;
   a.innerHTML = `<h2 style="color:${g.hue}">${g.name}</h2><p>${g.blurb}</p><div class="credit">${g.credit}</div><div class="go">${g.go.replace(">", "&gt;")}</div>`;
   document.getElementById(g.section).appendChild(a);
+  if (g.id) {
+    // guests can join the manifest federation too
+    fetch(`https://jlb0170.github.io/${g.id}/toy.json`).then(r => r.ok ? r.json() : null).then(m => {
+      if (!m) return;
+      a.querySelector("h2").textContent = m.name;
+      a.querySelector("p").textContent = m.blurb;
+    }).catch(() => {});
+  }
 }
 </script>
 </body>
