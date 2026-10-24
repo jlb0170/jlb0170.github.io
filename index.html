@@ -15,7 +15,15 @@
   main { max-width: 680px; width: 100%; }
   h1 { color: #e6edf3; font-size: 20px; letter-spacing: 8px; font-weight: 600; }
   .sub { color: #565d66; margin: 4px 0 34px; font-style: italic; }
-  h3 { color: #565d66; font-size: 11px; letter-spacing: 4px; margin: 26px 0 10px; font-weight: 600; }
+  .tabs { display: flex; gap: 26px; margin-bottom: 16px; border-bottom: 1px solid #21262e; }
+  .tabs a {
+    color: #565d66; font-size: 11px; letter-spacing: 4px; font-weight: 600; text-decoration: none;
+    padding: 12px 0; margin-bottom: -1px; border-bottom: 1px solid transparent;
+  }
+  .tabs a:hover { color: #8b949e; }
+  .tabs a.on { color: #e6edf3; border-bottom-color: #8b949e; }
+  .panel { display: none; }
+  .panel.on { display: block; }
   .credit { color: #565d66; font-size: 11px; margin-top: 6px; }
   .toy {
     display: block; text-decoration: none; color: inherit;
@@ -35,10 +43,12 @@
 <main>
   <h1>T O Y S</h1>
   <div class="sub">small worlds, left running. none of them need you.</div>
-  <h3>IDLERS</h3>
-  <div id="cards-idlers"></div>
-  <h3>GAME DEMOS</h3>
-  <div id="cards-demos"></div>
+  <nav class="tabs">
+    <a href="#idlers" data-tab="idlers">IDLERS</a>
+    <a href="#demos" data-tab="demos">GAME DEMOS</a>
+  </nav>
+  <div id="cards-idlers" class="panel"></div>
+  <div id="cards-demos" class="panel"></div>
   <footer>descriptions live inside each toy — this page just asks them</footer>
 </main>
 <script>
@@ -115,6 +125,18 @@ for (const g of GUESTS) {
     }).catch(() => {});
   }
 }
+// one tab showing at a time; the address's #idlers or #demos picks it, so a link can open either
+const TABS = ["idlers", "demos"];
+const showTab = () => {
+  const asked = location.hash.slice(1);
+  const tab = TABS.includes(asked) ? asked : TABS[0];
+  for (const t of TABS) {
+    document.querySelector(`.tabs a[data-tab="${t}"]`).classList.toggle("on", t === tab);
+    document.getElementById(`cards-${t}`).classList.toggle("on", t === tab);
+  }
+};
+addEventListener("hashchange", showTab);
+showTab();
 </script>
 </body>
 </html>
