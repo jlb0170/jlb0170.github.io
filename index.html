@@ -52,6 +52,8 @@ const TOYS = [
   { id: "shelterz", hue: "#a03028", section: "cards-idlers" },
   { id: "firehouse-rl", hue: "#e05a3a", section: "cards-demos" },
   { id: "remaind3r", hue: "#00ff41", section: "cards-demos" },
+  // lives on jeffbloke.com beside its scoreboard, over http, so this https page can't ask it: linked, its text kept here
+  { id: "gomarine", hue: "#8fbf4a", section: "cards-demos", href: "http://jeffbloke.com/gomarine/" },
 ];
 // guests: not part of the toy.json federation — a static card, credited
 const GUESTS = [
@@ -71,6 +73,7 @@ const FALLBACK = {
   "shelterz": ["SHELTERZ", "A zombie survival story machine. Named runners cross town, bleed, and turn; the streets keep the score in blood."],
   "firehouse-rl": ["FIREHOUSE RL", "A firefighting roguelike: a building that burns faster than orders travel."],
   "remaind3r": ["REMAIND3R", "A wave defense in falling digits: build launchers out from your core, fire the clusters they hold, rebuild while it rains."],
+  "gomarine": ["GO MARINE", "A two-handed defense: one hand drops walls as tetris pieces, the other drops whatever the pod holds — marine, flag or enemy. It escalates until you're overwhelmed; the scoreboard keeps who lasted."],
 };
 const onPages = location.hostname.endsWith("github.io");
 const playUrl = (id) => {
@@ -86,10 +89,11 @@ const manifestUrl = (id) => {
 for (const t of TOYS) {
   const a = document.createElement("a");
   a.className = "toy";
-  a.href = playUrl(t.id);
+  a.href = t.href ?? playUrl(t.id);
   const [fn, fb] = FALLBACK[t.id];
   a.innerHTML = `<h2 style="color:${t.hue}">${fn}</h2><p>${fb}</p><div class="go">&gt; enter</div>`;
   document.getElementById(t.section).appendChild(a);
+  if (t.href) continue;
   fetch(manifestUrl(t.id)).then(r => r.ok ? r.json() : null).then(m => {
     if (!m) return;
     a.querySelector("h2").textContent = m.name;
